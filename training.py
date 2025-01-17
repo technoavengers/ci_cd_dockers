@@ -9,8 +9,8 @@ import os
 with open("params.yaml", "r") as f:
     params = yaml.safe_load(f)
 
-os.makedirs(os.path.dirname("/shared/scaler.pkl"), exist_ok=True)
-os.makedirs(os.path.dirname("/shared/random_forest_model.pkl"), exist_ok=True)
+os.makedirs(os.path.dirname("/tmp/scaler.pkl"), exist_ok=True)
+os.makedirs(os.path.dirname("/tmp/random_forest_model.pkl"), exist_ok=True)
 
 
 def train_model():

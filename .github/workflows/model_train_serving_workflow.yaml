@@ -52,8 +52,8 @@ jobs:
       - name: Train the model and upload to S3
         run: |
           python training.py
-          aws s3 cp /shared/random_forest_model.pkl s3://dvcmlops1234/model_storage/random_forest_model.pkl
-          aws s3 cp /shared/scaler.pkl s3://dvcmlops1234/model_storage/scaler.pkl
+          aws s3 cp /tmp/random_forest_model.pkl s3://dvcmlops1234/model_storage/random_forest_model.pkl
+          aws s3 cp /tmp/scaler.pkl s3://dvcmlops1234/model_storage/scaler.pkl
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
