@@ -3,10 +3,13 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 import joblib
 import yaml
+import os
 
 # Load parameters
 with open("params.yaml", "r") as f:
     params = yaml.safe_load(f)
+
+os.makedirs(os.path.dirname("/shared"), exist_ok=True)
 
 def train_model():
 
