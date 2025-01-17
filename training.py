@@ -19,7 +19,7 @@ def train_model():
     data = pd.read_csv("walmart.csv")
 
     # Preprocess data
-    X,y = preprocess_data(data, is_training=True, scaler_path="/shared/scaler.pkl")
+    X,y = preprocess_data(data, is_training=True, scaler_path="/tmp/scaler.pkl")
 
     # Train the model
     model = RandomForestRegressor(
@@ -30,7 +30,7 @@ def train_model():
     model.fit(X, y)
 
     # Save the model
-    model_path = "/shared/random_forest_model.pkl"
+    model_path = "/tmp/random_forest_model.pkl"
     joblib.dump(model, model_path)
 
 if __name__ == "__main__":
