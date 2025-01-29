@@ -8,6 +8,7 @@ import os
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 params_path = os.path.join(current_dir, "params.yaml")
+data_path = os.path.join(current_dir,"walmart.csv")
 
 # Open params.yaml using the correct path
 with open(params_path, "r") as f:
@@ -20,7 +21,7 @@ os.makedirs(os.path.dirname("/tmp/random_forest_model.pkl"), exist_ok=True)
 def train_model():
 
     # Load dataset
-    data = pd.read_csv("walmart.csv")
+    data = pd.read_csv(data_path)
 
     # Preprocess data
     X,y = preprocess_data(data, is_training=True, scaler_path="/tmp/scaler.pkl")
