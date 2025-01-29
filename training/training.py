@@ -5,8 +5,12 @@ import joblib
 import yaml
 import os
 
-# Load parameters
-with open("params.yaml", "r") as f:
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+params_path = os.path.join(current_dir, "params.yaml")
+
+# Open params.yaml using the correct path
+with open(params_path, "r") as f:
     params = yaml.safe_load(f)
 
 os.makedirs(os.path.dirname("/tmp/scaler.pkl"), exist_ok=True)
