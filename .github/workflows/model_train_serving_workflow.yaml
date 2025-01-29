@@ -83,7 +83,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/model_serving ./serving
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/model_serving .
 
       - name: Push Docker Image
         run: |
