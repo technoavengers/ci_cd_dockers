@@ -40,7 +40,7 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.projectKey=ci_cd_dockers
+            -Dsonar.projectKey=technoavengers_ci_cd_dockers
             -Dsonar.organization=technoavengers
             -Dsonar.sources=.
             -Dsonar.branch.name=main
