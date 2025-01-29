@@ -1,4 +1,4 @@
-from Continuous_Integration_Deployment.CI_CD_Dockers.model_training_serving_workflow.scripts.preprocessing import preprocess_data
+from preprocessing import preprocess_data
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 import joblib
