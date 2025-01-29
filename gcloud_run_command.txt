@@ -1,0 +1,5 @@
+gcloud run deploy my-cloudrun-service \
+  --image=docker.io/technoavengers/model_serving_new:latest \
+  --platform=managed \
+  --region=us-central1 \
+  --allow-unauthenticated 
