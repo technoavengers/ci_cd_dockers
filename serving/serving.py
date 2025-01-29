@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import pandas as pd
 import joblib
-from preprocessing import preprocess_data
+from Continuous_Integration_Deployment.CI_CD_Dockers.model_training_serving_workflow.scripts.preprocessing import preprocess_data
 
 # Load model and scaler
 model_path = "random_forest_model.pkl"
