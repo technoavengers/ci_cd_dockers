@@ -40,10 +40,10 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.projectKey=technoavengers/ci_cd_dockers
-
+            -Dsonar.projectKey=ci_cd_dockers
             -Dsonar.organization=technoavengers
             -Dsonar.sources=.
+            -Dsonar.branch.name=main
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
   build_model:
