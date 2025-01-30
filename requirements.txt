@@ -6,3 +6,5 @@ mlflow
 fastapi
 uvicorn
 boto3
+pytest
+flake8
