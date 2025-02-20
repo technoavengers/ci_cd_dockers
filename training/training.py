@@ -37,6 +37,7 @@ def train_model():
     # Save the model
     model_path = "/tmp/random_forest_model.pkl"
     joblib.dump(model, model_path)
+    # Comment to trigger my pipeline
 
 if __name__ == "__main__":
     train_model()
