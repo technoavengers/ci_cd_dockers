@@ -73,7 +73,7 @@ jobs:
           name: trained-model
           path: ./artifacts/
 
-    create_serving_layer:
+  create_serving_layer:
       needs: train_model
       runs-on: ubuntu-latest
 
