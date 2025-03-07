@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: model-serving
-          image: docker.io/YOUR_DOCKER_HUB_USERNAME/model_serving:latest
+          image: technoavengers/model_serving:latest
           ports:
             - containerPort: 8000
 ---
