@@ -92,17 +92,16 @@ jobs:
             python -m pip install --upgrade pip
             if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-        - name: Log in to GitHub Container Registry
+        - name: Log in to Docker Hub
           uses: docker/login-action@v2
           with:
-            registry: ghcr.io
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+              username: ${{ secrets.DOCKER_HUB_USERNAME }}
+              password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-        - name: Build Docker Image for Serving Layer
+        - name: Build Docker Image
           run: |
-            docker build -t ghcr.io/${{ github.repository_owner }}/model-serving:latest .
+              docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/model_serving-latest20-02-2025 .
 
-        - name: Push Docker Image to GitHub Container Registry
+        - name: Push Docker Image
           run: |
-            docker push ghcr.io/${{ github.repository_owner }}/model-serving:latest
+              docker push ${{ secrets.DOCKER_HUB_USERNAME }}/model_serving-latest20-02-2025
