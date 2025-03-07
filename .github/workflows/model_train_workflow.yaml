@@ -105,3 +105,32 @@ jobs:
         - name: Push Docker Image
           run: |
               docker push ${{ secrets.DOCKER_HUB_USERNAME }}/model_serving:latest
+
+  deploy_serving_layer:
+      needs: create_serving_layer
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Get GKE Credentials
+        run: |
+          gcloud container clusters get-credentials autopilot-cluster-1 --zone=us-central1-a --project=upgradlabs-1738334789365
+
+      - name: Apply Kubernetes Deployment
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+
+      - name: Verify Deployment
+        run: |
+          kubectl get pods
+          kubectl get svc model-serving-service
