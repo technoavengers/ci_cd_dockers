@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: model-serving
+  namespace: default
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: model-serving
@@ -13,8 +14,21 @@ spec:
         app: model-serving
     spec:
       containers:
-      - name: model-serving
-        image: ${{ secrets.DOCKER_HUB_USERNAME }}/model_serving:latest
-        ports:
-        - containerPort: 8000
-        - containerPort: 8001
+        - name: model-serving
+          image: docker.io/YOUR_DOCKER_HUB_USERNAME/model_serving:latest
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-serving-service
+  namespace: default
+spec:
+  selector:
+    app: model-serving
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: LoadBalancer
