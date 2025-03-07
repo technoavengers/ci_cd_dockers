@@ -43,7 +43,7 @@ jobs:
             -Dsonar.branch.name=main
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
-  build_model:
+  train_model:
     needs: build_and_test
     runs-on: ubuntu-latest
 
