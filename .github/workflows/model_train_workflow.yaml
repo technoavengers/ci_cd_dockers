@@ -62,7 +62,7 @@ jobs:
 
       - name: Train the model and upload to S3
         run: |
-          python training.py
+          python training/training.py
           mkdir -p artifacts
           mv /tmp/random_forest_model.pkl ./artifacts/random_forest_model.pkl
           mv /tmp/scaler.pkl ./artifacts/scaler.pkl
