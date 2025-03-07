@@ -126,6 +126,11 @@ jobs:
         run: |
           gcloud container clusters get-credentials autopilot-cluster-1 --region=us-central1 --project=upgradlabs-1738334789365
 
+      - name: Install GKE Auth Plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin
+          export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+      
       - name: Apply Kubernetes Deployment
         run: |
           kubectl apply -f k8s/deployment.yaml
