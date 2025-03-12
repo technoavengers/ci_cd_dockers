@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  build_and_test:
+  test_code_analysis:
     runs-on: ubuntu-latest
 
     steps:
@@ -44,7 +44,7 @@ jobs:
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
   train_model:
-    needs: build_and_test
+    needs: test_code_analysis
     runs-on: ubuntu-latest
 
     steps:
@@ -60,7 +60,7 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Train the model and upload to S3
+      - name: Train the model
         run: |
           python training/training.py
           mkdir -p artifacts
@@ -124,7 +124,7 @@ jobs:
 
       - name: Get GKE Credentials
         run: |
-          gcloud container clusters get-credentials autopilot-cluster-2 --region=us-central1 --project=upgradlabs-1738334789365
+          gcloud container clusters get-credentials autopilot-cluster-1 --region=us-central1 --project=upgradlabs-1738334789365
 
       - name: Install GKE Auth Plugin
         run: |
