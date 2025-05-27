@@ -12,13 +12,14 @@ app = FastAPI()
 
 @app.get("/")
 def home():
-    return {"message": "Welcome to the Model Serving API"}
+    return {"message": "Welcome to the Model Serving API new"}
 
 @app.post("/predict/")
 def predict(data: dict):
     """
     Make predictions using the trained model.
     """
+    #Adding a comment
     df = pd.DataFrame([data])
     processed_data = preprocess_data(df, is_training=False, scaler_path=scaler_path)
     predictions = model.predict(processed_data)
