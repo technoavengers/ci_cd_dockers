@@ -21,6 +21,7 @@ os.makedirs(os.path.dirname("/tmp/random_forest_model.pkl"), exist_ok=True)
 def train_model():
 
     # Load dataset
+    #new comment
     data = pd.read_csv(data_path)
 
     # Preprocess data
