@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY serving/serving.py serving/preprocessing.py requirements.txt ./artifacts/random_forest_model.pkl ./artifacts/scaler.pkl /app/
 
+RUN pip install --upgrade pip
 
 RUN pip install --no-cache-dir -r requirements.txt
 
