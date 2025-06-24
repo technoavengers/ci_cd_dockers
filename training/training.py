@@ -22,6 +22,7 @@ def train_model():
 
     # Load dataset
     #new comment
+    #new comment added to trigger pipeline
     data = pd.read_csv(data_path)
 
     # Preprocess data
