@@ -19,7 +19,7 @@ def predict(data: dict):
     """
     Make predictions using the trained model.
     """
-    #Adding a comment
+    #Adding a comment to intiate my pipeline
     df = pd.DataFrame([data])
     processed_data = preprocess_data(df, is_training=False, scaler_path=scaler_path)
     predictions = model.predict(processed_data)
