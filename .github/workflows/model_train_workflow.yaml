@@ -124,7 +124,7 @@ jobs:
 
       - name: Get GKE Credentials
         run: |
-          gcloud container clusters get-credentials cluster-1 --zone us-central1-a --project=upgradlabs-174695532275
+          gcloud container clusters get-credentials cluster-1 --zone us-central1-a --project=upgradlabs-1746955322752
 
       - name: Install GKE Auth Plugin
         run: |
