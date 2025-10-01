@@ -1,0 +1,174 @@
+name: Train ML Model
+
+# Trigger this workflow whenever code is pushed to the main branch.  The
+# pipeline tests and trains your ML model, builds and pushes a Docker
+# image containing the serving layer, and finally deploys the serving
+# layer to an Azure Kubernetes Service (AKS) cluster.  The deployment
+# job uses Azure‑specific actions instead of the Google Cloud actions
+# previously used.
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  # Run linting, static analysis, tests and a SonarQube scan.  This
+  # job checks out the code, installs the Python dependencies, runs
+  # pytest and executes the SonarQube scan using your project and
+  # organization settings.
+  test_code_analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Test with pytest
+        run: |
+          pytest
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=technoavengers_ci_cd_dockers
+            -Dsonar.organization=technoavengers
+            -Dsonar.sources=.
+            -Dsonar.branch.name=main
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+
+  # Train your machine learning model.  This job depends on the
+  # successful completion of the test_code_analysis job.  It checks out
+  # the code, installs dependencies, runs the training script and
+  # stores the generated model artefacts as a workflow artifact.
+  train_model:
+    needs: test_code_analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Train the model
+        run: |
+          python training/training.py
+          mkdir -p artifacts
+          mv /tmp/random_forest_model.pkl ./artifacts/random_forest_model.pkl
+          mv /tmp/scaler.pkl ./artifacts/scaler.pkl
+
+      - name: Save the trained model as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model
+          path: ./artifacts/
+
+  # Build a Docker image for the serving layer and push it to
+  # Docker Hub.  This job runs after the model is trained.  It
+  # downloads the trained model artifact, installs the necessary
+  # dependencies, logs into Docker Hub using secrets, builds the Docker
+  # image using your Dockerfile and pushes it to your Docker Hub
+  # repository.
+  create_serving_layer:
+    needs: train_model
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download trained model artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trained-model
+          path: ./artifacts/
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/model_serving:latest .
+
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/model_serving:latest
+
+  # Deploy the serving layer to an Azure Kubernetes Service (AKS)
+  # cluster.  This job replaces the previous Google Cloud deployment
+  # steps with Azure‑specific actions.  It logs into Azure using the
+  # Azure Login action, retrieves the kubeconfig for your AKS cluster
+  # using azure/aks‑set‑context and then applies your Kubernetes
+  # manifest.  You must provide the cluster name and resource group
+  # (specified below), along with the Azure authentication details in
+  # repository secrets (AZURE_CLIENT_ID, AZURE_TENANT_ID and
+  # AZURE_SUBSCRIPTION_ID) for the login to succeed【412982813312725†L323-L335】.
+  deploy_serving_layer:
+    needs: create_serving_layer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Authenticate to Azure using the OIDC‑enabled Azure Login
+      # action.  Provide your service principal client ID, tenant ID
+      # and subscription ID as secrets.  See the azure/login
+      # documentation for details【79607085528451†L293-L341】.
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Set the Kubernetes context for your AKS cluster.  This action
+      # retrieves the cluster’s kubeconfig and configures kubectl to
+      # communicate with it【412982813312725†L323-L335】.  Replace the
+      # resource group and cluster name with your values as provided
+      # by the user.
+      - name: Set AKS context
+        uses: azure/aks-set-context@v4
+        with:
+          resource-group: nav-rg
+          cluster-name: navdeep-aks
+
+      # Apply the Kubernetes manifests to deploy or update the
+      # application on AKS.  The manifest file resides under
+      # k8s/deployment.yaml and is assumed to reference the image you
+      # pushed to Docker Hub.
+      - name: Apply Kubernetes Deployment
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+
+      # Verify that the pods and service are running in the cluster.
+      - name: Verify Deployment
+        run: |
+          kubectl get pods
+          kubectl get svc model-serving-service
