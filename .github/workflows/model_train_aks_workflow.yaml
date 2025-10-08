@@ -156,7 +156,7 @@ jobs:
       - name: Set AKS context
         uses: azure/aks-set-context@v4
         with:
-          resource-group: nav-rg
+          resource-group: navrs
           cluster-name: navdeep-aks
 
       # Apply the Kubernetes manifests to deploy or update the
