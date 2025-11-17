@@ -123,52 +123,29 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/model_serving:latest
 
-  # Deploy the serving layer to an Azure Kubernetes Service (AKS)
-  # cluster.  This job replaces the previous Google Cloud deployment
-  # steps with Azure‑specific actions.  It logs into Azure using the
-  # Azure Login action, retrieves the kubeconfig for your AKS cluster
-  # using azure/aks‑set‑context and then applies your Kubernetes
-  # manifest.  You must provide the cluster name and resource group
-  # (specified below), along with the Azure authentication details in
-  # repository secrets (AZURE_CLIENT_ID, AZURE_TENANT_ID and
-  # AZURE_SUBSCRIPTION_ID) for the login to succeed【412982813312725†L323-L335】.
+
   deploy_serving_layer:
     needs: create_serving_layer
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # Authenticate to Azure using the OIDC‑enabled Azure Login
-      # action.  Provide your service principal client ID, tenant ID
-      # and subscription ID as secrets.  See the azure/login
-      # documentation for details【79607085528451†L293-L341】.
-      - name: Azure Login
-        uses: azure/login@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      # Set the Kubernetes context for your AKS cluster.  This action
-      # retrieves the cluster’s kubeconfig and configures kubectl to
-      # communicate with it【412982813312725†L323-L335】.  Replace the
-      # resource group and cluster name with your values as provided
-      # by the user.
-      - name: Set AKS context
-        uses: azure/aks-set-context@v4
-        with:
-          resource-group: navrs
-          cluster-name: navdeep-aks
-
-      # Apply the Kubernetes manifests to deploy or update the
-      # application on AKS.  The manifest file resides under
-      # k8s/deployment.yaml and is assumed to reference the image you
-      # pushed to Docker Hub.
-      - name: Apply Kubernetes Deployment
+      - name: Update kubeconfig
         run: |
-          kubectl apply -f k8s/deployment.yaml
+          aws eks update-kubeconfig \
+            --name ${{ secrets.EKS_CLUSTER_NAME }} \
+            --region ${{ secrets.AWS_REGION }}
 
-      # Verify that the pods and service are running in the cluster.
-      - name: Verify Deployment
-        run: |
-          kubectl get pods
-          kubectl get svc model-serving-service
+      - name: Test connection
+        run: kubectl get nodes
+
+      - name: Deploy
+        run: kubectl apply -f k8s/
